@@ -2,7 +2,6 @@ name: Update Detection Rules
 
 on:
   schedule:
-    # 每周六凌晨 2:00 UTC 自动更新规则
     - cron: '0 2 * * 6'
   workflow_dispatch:
     inputs:
@@ -31,7 +30,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -45,22 +44,19 @@ jobs:
           OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
           ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
         run: |
-          echo "=== CloudInspect 规则自动更新 ==="
-          echo "触发源: ${{ github.event_name }}"
+          echo "=== CloudInspect 规则更新 ==="
           python .github/scripts/update_rules.py --source "${{ inputs.source || 'all' }}"
 
       - name: Check for changes
         id: git_status
         run: |
-          if git diff --quiet; then
+          if git diff --quiet python/rules/; then
             echo "changes=false" >> $GITHUB_OUTPUT
-            echo "无规则更新，跳过 PR。"
+            echo "无规则更新，跳过 PR"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
-            echo "=== 变更摘要 ==="
-            git diff --stat
-            echo "=== 变更详情 ==="
-            git diff python/rules/ | head -80
+            echo "=== 变更 ==="
+            git diff --stat python/rules/
           fi
 
       - name: Create Pull Request
@@ -68,36 +64,25 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore(rules): auto-update detection rules $(date +%Y-%m-%d)"
-          branch: feature/auto-update-rules-$(date +%Y%m%d)
+          commit-message: "chore(rules): auto-update detection rules"
+          branch: feature/auto-update-rules
           delete-branch: true
-          title: "🤖 自动规则更新 $(date +%Y-%m-%d)"
+          title: "🤖 自动规则更新"
           body: |
             ## CloudInspect 规则自动更新
 
-            **触发时间**: $(date '+%Y-%m-%d %H:%M UTC')
-
-            ### 更新内容
-
-            自动同步最新的入侵检测规则：
+            规则已从外部威胁情报源同步更新：
             - 后门检测规则 (backdoor_rules.yaml)
             - Rootkit 特征库 (rootkit_signatures.yaml)
             - Webshell 检测模式 (webshell_patterns.yaml)
 
-            ### 规则来源
+            规则来源: 自定义专家规则 + Emerging Threats + AlienVault OTX + AbuseIPDB
 
-            | 来源 | 状态 |
-            |---|---|
-            | 自定义专家规则 | ✅ 已启用 |
-            | Emerging Threats (ET Open) | ✅ 已启用 |
-            | AlienVault OTX | ✅ 已启用 |
-            | AbuseIPDB | ✅ 已启用 |
+            ### 审查清单
 
-            ### 人工审查清单
-
-            - [ ] 审查规则变更内容
-            - [ ] 确认无误后合并
-            - [ ] 可选：发布 Release 版本
+            - [ ] 审查规则变更
+            - [ ] 确认后合并
+            - [ ] 可选发布 Release
 
             ---
             *由 CloudInspect GitHub Actions 自动生成*
@@ -106,16 +91,10 @@ jobs:
             rules-update
             security
 
-      - name: Sync to releases branch
-        if: steps.git_status.outputs.changes == 'true'
-        run: |
-          echo "规则更新完成，将在 PR 合并后同步到 releases 分支"
-
-      - name: Summary
+      - name: Result
         run: |
           if [ "${{ steps.git_status.outputs.changes }}" == "true" ]; then
-            echo "✅ 规则已更新，PR 已创建，请前往 Review 合并"
-            echo "📋 https://github.com/${{ github.repository }}/pulls"
+            echo "✅ 规则已更新，PR 已创建: https://github.com/${{ github.repository }}/pulls"
           else
-            echo "✅ 无新规则，当前规则已是最新"
+            echo "✅ 规则已是最新，无更新"
           fi
