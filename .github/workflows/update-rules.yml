@@ -26,7 +26,6 @@ jobs:
       contents: write
       pull-requests: write
       releases: write
-      id-token: write
 
     steps:
       - name: Checkout repository
@@ -54,14 +53,14 @@ jobs:
         run: |
           if git diff --quiet python/rules/; then
             echo "changes=false" >> $GITHUB_OUTPUT
-            echo "无规则更新，跳过 PR"
+            echo "无规则更新，跳过后续步骤"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
             echo "=== 变更 ==="
             git diff --stat python/rules/
           fi
 
-      - name: Create or update Pull Request
+      - name: Create Pull Request
         if: steps.git_status.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
@@ -73,21 +72,7 @@ jobs:
           body: |
             ## CloudInspect 规则自动更新
 
-            规则已从外部威胁情报源同步更新：
-            - 后门检测规则 (backdoor_rules.yaml)
-            - Rootkit 特征库 (rootkit_signatures.yaml)
-            - Webshell 检测模式 (webshell_patterns.yaml)
-
-            ### 规则来源
-
-            | 来源 | 说明 |
-            |---|---|
-            | 自定义专家规则 | 基于 GScan + 安全经验 |
-            | Emerging Threats | 恶意 IP (525+ 条) |
-            | AlienVault OTX | 社区威胁情报脉冲 |
-            | AbuseIPDB | 高置信度恶意 IP (200+ 条) |
-
-            ### 自动审查通过，合并发布
+            规则已从外部威胁情报源同步更新，包含后门检测规则、Rootkit 特征库和 Webshell 检测模式。
           labels: |
             automated
             rules-update
@@ -96,57 +81,55 @@ jobs:
       - name: Auto-merge Pull Request
         if: steps.git_status.outputs.changes == 'true'
         run: |
-          echo "等待 PR 创建完成..."
-          sleep 10
-
-          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --state open --label automated --json number --jq '.[0].number')
+          echo "等待 PR 创建..."
+          sleep 15
+          PR_NUMBER=$(gh pr list \
+            --repo ${{ github.repository }} \
+            --state open \
+            --label automated \
+            --json number \
+            --jq '.[0].number' 2>/dev/null)
           echo "PR 编号: $PR_NUMBER"
-
           if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-            echo "合并 PR #$PR_NUMBER"
-            gh pr merge $PR_NUMBER --repo ${{ github.repository }} --squash --delete-branch
-            echo "✅ PR 已合并"
+            gh pr merge $PR_NUMBER \
+              --repo ${{ github.repository }} \
+              --squash \
+              --delete-branch
+            echo "PR #$PR_NUMBER 已合并"
           else
-            echo "未找到 PR，跳过合并"
+            echo "未找到 open PR，跳过合并"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         if: steps.git_status.outputs.changes == 'true'
-        id: create_release
         run: |
-          PR_NUMBER=$(gh pr list --repo ${{ github.repository }} --state closed --label automated --json number --jq '.[0].number' 2>/dev/null || echo "")
+          TAG="rules-$(date +%Y%m%d)"
+          echo "Release tag: $TAG"
 
-          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-            TAG="rules-$(date +%Y%m%d)"
-            echo "创建 Release tag: $TAG"
+          # 生成 release notes 文件
+          echo "## CloudInspect 规则自动更新" > /tmp/release-notes.md
+          echo "" >> /tmp/release-notes.md
+          echo "规则版本: $(date +%Y-%m-%d)" >> /tmp/release-notes.md
+          echo "" >> /tmp/release-notes.md
+          echo "### 来源" >> /tmp/release-notes.md
+          echo "- Emerging Threats: 恶意 IP 列表" >> /tmp/release-notes.md
+          echo "- AlienVault OTX: 威胁情报脉冲" >> /tmp/release-notes.md
+          echo "- AbuseIPDB: 高置信度 IP" >> /tmp/release-notes.md
+          echo "" >> /tmp/release-notes.md
+          echo "### 文件" >> /tmp/release-notes.md
+          echo "- backdoor_rules.yaml" >> /tmp/release-notes.md
+          echo "- rootkit_signatures.yaml" >> /tmp/release-notes.md
+          echo "- webshell_patterns.yaml" >> /tmp/release-notes.md
+          echo "" >> /tmp/release-notes.md
+          echo "由 CloudInspect GitHub Actions 自动生成" >> /tmp/release-notes.md
 
-            gh release create $TAG \
-              --repo ${{ github.repository }} \
-              --title "Auto Update Rules $(date +%Y-%m-%d)" \
-              --notes "## 规则自动更新
-
-规则版本: $(date +%Y-%m-%d)
-
-### 来源
-- Emerging Threats: 恶意 IP 列表
-- AlienVault OTX: 威胁情报脉冲
-- AbuseIPDB: 高置信度 IP
-
-### 文件
-- backdoor_rules.yaml
-- rootkit_signatures.yaml
-- webshell_patterns.yaml
-
-由 CloudInspect GitHub Actions 自动生成"
-
-            echo "✅ Release $TAG 已创建"
-          else
-            echo "跳过 Release 创建（PR 可能未合并）"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh release create "$TAG" \
+            --repo ${{ github.repository }} \
+            --title "Auto Update Rules $(date +%Y-%m-%d)" \
+            --notes-file /tmp/release-notes.md
+          echo "Release $TAG 已创建"
 
       - name: Summary
         run: |
@@ -154,7 +137,8 @@ jobs:
             TAG="rules-$(date +%Y%m%d)"
             echo "✅ 规则更新完成"
             echo "✅ PR 已合并到 main"
-            echo "✅ Release $TAG 已发布: https://github.com/${{ github.repository }}/releases"
+            echo "✅ Release $TAG 已发布"
+            echo "📦 https://github.com/${{ github.repository }}/releases"
           else
             echo "✅ 规则已是最新，无更新"
           fi
