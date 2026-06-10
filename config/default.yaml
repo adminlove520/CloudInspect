@@ -1,0 +1,141 @@
+# CloudInspect 默认配置
+# Bash/Python 共用，请勿修改此文件，直接在命令行或 config/local.yaml 中覆盖
+
+thresholds:
+  cpu_warn: 80
+  cpu_crit: 90
+  mem_warn: 85
+  mem_crit: 95
+  disk_warn: 85
+  disk_crit: 95
+  inode_warn: 85
+  swap_warn: 50
+  load_factor: 2
+  fd_warn: 80
+  conn_close_wait: 50
+  zombie_warn: 0
+  crit_offset: 10
+
+scan:
+  top_n: 10
+  fd_top_n: 5
+  log_lines: 20
+  large_file_size: "100M"
+  recent_days: 7
+  recent_file_size: "50M"
+  search_paths:
+    - /var
+    - /home
+    - /opt
+    - /usr/local
+
+ssl:
+  days_warn: 30
+
+security:
+  ssh_port: 22
+  allow_root_login: false
+  check_empty_passwd: true
+  check_suid: true
+  check_sgid: true
+
+backdoor:
+  check_ld_preload: true
+  check_cron: true
+  check_alias: true
+  check_ssh_backdoor: true
+  check_setuid: true
+  check_startup: true
+  check_ldso_preload: true
+  check_prompt_command: true
+  check_ssh_wrapper: true
+  check_inetd: true
+  check_xinetd: true
+
+rootkit:
+  check_file_signatures: true
+  check_lkm: true
+  check_hidden_proc: true
+  check_suspicious_files: true
+
+webshell:
+  scan_paths:
+    - /var/www
+    - /home
+    - /opt
+  scan_extensions:
+    - .php
+    - .jsp
+    - .asp
+    - .aspx
+    - .py
+    - .htm
+    - .html
+  check_patterns: true
+
+report:
+  output_dir: "/tmp/cloudinspect"
+  formats:
+    - html
+    - json
+  template: "default"
+
+modes:
+  routine:
+    description: "日常巡检模式（推荐）"
+    speed: "fast"
+    duration: "5-15min"
+    modules:
+      - sysinfo
+      - disk
+      - network
+      - process
+      - service
+      - cron
+      - security
+      - backdoor
+      - log_analysis
+      - history
+  emergency:
+    description: "应急排查模式（深度）"
+    speed: "deep"
+    duration: "30-60min"
+    modules:
+      - sysinfo
+      - disk
+      - network
+      - process
+      - service
+      - cron
+      - security
+      - backdoor
+      - rootkit
+      - log_analysis
+      - history
+      - webshell
+  quick:
+    description: "快速扫描模式"
+    speed: "quick"
+    duration: "1-3min"
+    modules:
+      - sysinfo
+      - process
+      - network
+      - security
+  full:
+    description: "完全扫描模式"
+    speed: "full"
+    duration: "60min+"
+    modules:
+      - sysinfo
+      - disk
+      - network
+      - process
+      - service
+      - cron
+      - security
+      - backdoor
+      - rootkit
+      - log_analysis
+      - history
+      - webshell

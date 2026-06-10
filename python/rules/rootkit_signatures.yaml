@@ -1,0 +1,28 @@
+# coding: utf-8
+"""
+Rootkit 特征规则库
+"""
+
+ROOTKIT_FILE_SIGNATURES = [
+    "/tmp/...",
+    "/tmp/..",
+    "/var/tmp/...",
+    "/var/tmp/..",
+    "/dev/shm/...",
+    "/dev/shm/..",
+]
+
+ROOTKIT_NAMES = [
+    "SuckIt", "TCT", "Bchk", "Rozena", "Diamorphine",
+    " Reptile", "Avz", "KNARK", "Heroes", "Mood-NT",
+    "Invisible-Keylogger", "Zzag", "Mokes", "Bial",
+]
+
+LKM_PATTERNS = [
+    "hide", "sniffer", "rootkit", "backdoor",
+    "keylog", "stealth", "hook", "inject",
+]
+
+SUSPICIOUS_PROC_NAMES = [
+    "[kworker", "[kthreadd", "kondemand", "loop"
+]

@@ -1,0 +1,39 @@
+# coding: utf-8
+"""
+后门检测规则库
+"""
+
+BACKDOOR_RULES = {
+    "LD_PRELOAD": {
+        "env_files": [
+            "/root/.bashrc", "/root/.bash_profile", "/etc/bashrc",
+            "/etc/profile", "/etc/profile.d/"
+        ],
+        "description": "LD_PRELOAD 后门"
+    },
+    "ld.so.preload": {
+        "file": "/etc/ld.so.preload",
+        "description": "ld.so.preload 后门"
+    },
+    "PROMPT_COMMAND": {
+        "env_files": ["/root/.bashrc", "/etc/bashrc", "/etc/profile"],
+        "description": "PROMPT_COMMAND 后门"
+    },
+    "SSH_wrapper": {
+        "check": "file /usr/sbin/sshd",
+        "description": "SSH wrapper 后门"
+    },
+    "alias_backdoor": {
+        "patterns": ["rm -rf", "wget.*境外", "curl.*境外"],
+        "description": "Alias 后门"
+    }
+}
+
+CRON_BACKDOOR_PATTERNS = [
+    "wget.*境外", "curl.*境外", "境外ip", "nc\\s",
+    "bash.*-i", "/dev/tcp", "base64.*解码"
+]
+
+SETUID_BLACKLIST = [
+    "/tmp/", "/var/tmp/", "/dev/shm/"
+]

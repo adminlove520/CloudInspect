@@ -1,0 +1,9 @@
+# CloudInspect - Python 依赖列表
+
+# 核心依赖（至少需要这些）
+pyyaml>=6.0
+psutil>=5.9.0
+
+# 报告生成
+python-docx>=0.8.10
+lxml>=4.9.0
