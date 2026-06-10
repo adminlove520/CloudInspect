@@ -109,25 +109,36 @@ collect_sysinfo() {
         virt_info="未知"
     fi
 
-    # CPU 使用率
-    local cpu_usage
-    cpu_usage=$(top -bn1 2>/dev/null | head -1 | grep -oP 'id\K[0-9.]+' || echo "0")
+    # CPU 使用率（更健壮的计算）
+    local cpu_idle
+    cpu_idle=$(top -bn2 -d 1 2>/dev/null | tail -1 | grep -oP 'Cpu.*?\K[0-9.]+(?=.*id)' || \
+               top -bn1 2>/dev/null | grep "Cpu(s)" | awk '{print $8}' | tr -d 'id,%' || echo "0")
+    [[ -z "$cpu_idle" || "$cpu_idle" == "0" ]] && cpu_idle=$(awk '/^cpu / {print $5}' /proc/stat 2>/dev/null && \
+        sleep 0.5 && awk '/^cpu / {print ($5 - prev)/1 * 100; exit}' prev=$(awk '/^cpu / {print $5}' /proc/stat) /proc/stat 2>/dev/null || echo "0")
+    cpu_usage=$(echo "100 - $cpu_idle" | bc 2>/dev/null || echo "0")
     cpu_usage=${cpu_usage%.*}
-    cpu_usage=$((100 - cpu_usage))
+    [[ -z "$cpu_usage" || ! "$cpu_usage" =~ ^[0-9]+$ ]] && cpu_usage=0
 
     # 负载
     local load_1 load_5 load_15
-    load_1=$(uptime | grep -oP 'load average: \K[0-9.]+' || echo "0")
-    load_5=$(uptime | grep -oP '[0-9.]+(?=, [0-9.]+, [0-9.]+$)' || echo "0")
-    load_15=$(uptime | grep -oP '[0-9.]+(?=$)' || echo "0")
+    if [[ -r /proc/loadavg ]]; then
+        read -r load_1 load_5 load_15 _ < /proc/loadavg
+    else
+        load_1=$(uptime | grep -oP 'load average: \K[0-9.]+' || echo "0")
+        load_5=$(uptime | grep -oP '[0-9.]+(?=, [0-9.]+, [0-9.]+$)' || echo "0")
+        load_15=$(uptime | grep -oP '[0-9.]+(?=$)' || echo "0")
+    fi
+    [[ -z "$load_1" ]] && load_1=0
+    [[ -z "$load_5" ]] && load_5=0
+    [[ -z "$load_15" ]] && load_15=0
 
     # 告警检查
     local cpu_class mem_class
     cpu_class=$(get_color_class "$cpu_usage" "$CPU_WARN")
     mem_class=$(get_color_class "$mem_used_pct" "$MEM_WARN")
 
-    [[ "$cpu_usage" -ge "$CPU_WARN" ]] && log_warn "CPU 使用率较高: ${cpu_usage}%"
-    [[ "$mem_used_pct" -ge "$MEM_WARN" ]] && log_warn "内存使用率较高: ${mem_used_pct}%"
+    (( cpu_usage >= CPU_WARN )) && log_warn "CPU 使用率较高: ${cpu_usage}%"
+    (( mem_used_pct >= MEM_WARN )) && log_warn "内存使用率较高: ${mem_used_pct}%"
 
     # 输出 HTML
     cat >> "$REPORT_FILE" <<EOF

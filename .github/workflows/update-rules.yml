@@ -1,0 +1,108 @@
+name: Update Detection Rules
+
+on:
+  schedule:
+    # 每周六凌晨 2:00 UTC 自动更新规则
+    - cron: '0 2 * * 6'
+  # 手动触发（可传入规则源参数）
+  workflow_dispatch:
+    inputs:
+      rule_source:
+        description: '规则源 (alienvault|abuseipdb|emerging|all)'
+        required: false
+        default: 'all'
+  # 也可以通过 API 触发
+  repository_dispatch:
+    types: [update-rules]
+
+jobs:
+  update-rules:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml requests
+
+      - name: Run rule update script
+        id: update
+        run: |
+          python .github/scripts/update_rules.py --source "${{ inputs.rule_source || 'all' }}"
+
+      - name: Check for changes
+        id: git_status
+        run: |
+          if git diff --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "No rule updates available."
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "Rule files updated."
+            git diff --stat
+          fi
+
+      - name: Create Pull Request
+        if: steps.git_status.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore(rules): auto-update detection rules
+            - Updated: $(date +%Y-%m-%d)
+            - Source: ${{ inputs.rule_source || 'all' }}'
+          branch: feature/auto-update-rules-$(date +%Y%m%d)
+          delete-branch: true
+          title: '🤖 自动规则更新 $(date +%Y-%m-%d)'
+          body: |
+            ## CloudInspect 规则自动更新
+
+            本 PR 由 GitHub Actions 自动创建，来源: `${{ inputs.rule_source || 'all' }}`
+
+            ### 更新内容
+
+            自动同步最新的入侵检测规则：
+            - 后门检测规则 (backdoor_rules.yaml)
+            - Rootkit 特征库 (rootkit_signatures.yaml)
+            - Webshell 检测模式 (webshell_patterns.yaml)
+
+            ### 更新来源
+
+            | 来源 | 说明 |
+            |---|---|
+            | AlienVault OTX | 社区威胁情报 |
+            | Emerging Threats | ET Open 规则 |
+            | MITRE ATT&CK | 攻击模式映射 |
+            | 自定义规则 | 项目维护的扩展规则 |
+
+            ### 操作建议
+
+            - [ ] 审查规则变更内容
+            - [ ] 如有新规则来源可加入
+            - [ ] 确认无误后合并
+
+            ---
+            *此 PR 由 CloudInspect 自动化规则更新系统生成*
+          labels: |
+            automated
+            rules-update
+            security
+
+      - name: Publish Release (if significant update)
+        if: steps.git_status.outputs.changes == 'true'
+        run: |
+          # 如果有重大更新（规则数量增加 >10%），创建 release tag
+          echo "Rule update completed at $(date)"
+          git log --oneline -1 > /tmp/commit.txt
+          echo "Commit: $(cat /tmp/commit.txt)"

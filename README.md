@@ -5,6 +5,8 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux-orange.svg)]()
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)]()
 [![Bash](https://img.shields.io/badge/Shell-Bash%204.0+-green.svg)]()
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Auto%20Rules-blue.svg)](.github/workflows/update-rules.yml)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ---
 
@@ -181,6 +183,74 @@ CloudInspect/
 | `0` | 正常（无警告/无严重） |
 | `1` | 有警告 |
 | `2` | 有严重告警/脚本错误 |
+
+---
+
+## 规则自动更新
+
+CloudInspect 通过 GitHub Actions 定时自动更新检测规则，确保能检测到最新的入侵手法。
+
+### 工作原理
+
+```
+GitHub Actions (每周六 02:00 UTC)
+       ↓
+   update_rules.py
+       ↓
+   ┌──────────────┐
+   │  规则源       │
+   │  - 自定义专家规则  │
+   │  - Emerging Threats  │
+   │  - AlienVault OTX (可选) │
+   │  - AbuseIPDB (可选)   │
+   └──────────────┘
+       ↓
+   规则合并 + 版本管理
+       ↓
+   创建 Pull Request
+       ↓
+   人工审查后合并
+```
+
+### 触发方式
+
+| 方式 | 说明 |
+|---|---|
+| **自动** | 每周六凌晨 2:00 UTC 自动执行 |
+| **手动** | GitHub Actions 页面点击 "Run workflow" |
+| **API** | `POST /repos/owner/repo/dispatches` with `repository_dispatch` |
+| **本地** | `python .github/scripts/update_rules.py --source all` |
+
+### 设置 API Key（可选）
+
+如需使用 AlienVault OTX / AbuseIPDB，需在 GitHub Secrets 中配置：
+
+| Secret 名称 | 用途 |
+|---|---|
+| `OTX_API_KEY` | AlienVault OTX API Key |
+| `ABUSEIPDB_API_KEY` | AbuseIPDB API Key |
+
+### 规则文件
+
+| 文件 | 说明 |
+|---|---|
+| `python/rules/backdoor_rules.yaml` | 后门检测规则 |
+| `python/rules/rootkit_signatures.yaml` | Rootkit 特征库 |
+| `python/rules/webshell_patterns.yaml` | Webshell 检测模式 |
+
+每个规则文件包含：
+- `_meta` — 版本号/更新时间/规则总数
+- `custom_expert_rules` — 基于 GScan 和安全专家经验的规则
+- 自动同步的外部规则
+
+### 规则来源
+
+| 来源 | 内容 | 需要 API Key |
+|---|---|---|
+| 自定义专家规则 | 9 种后门检测逻辑 | 否 |
+| Emerging Threats | 恶意 IP + Suricata 规则 | 否 |
+| AlienVault OTX | 威胁情报脉冲 | 是 |
+| AbuseIPDB | 高置信度恶意 IP | 是 |
 
 ---
 

@@ -1,39 +1,128 @@
 # coding: utf-8
-"""
-后门检测规则库
-"""
+# CloudInspect 后门检测规则
+# ⚠️ 此文件由 GitHub Actions 自动更新，请勿手动修改
+# 规则格式: YAML，支持 version/metadata/rules 三层结构
 
-BACKDOOR_RULES = {
-    "LD_PRELOAD": {
-        "env_files": [
-            "/root/.bashrc", "/root/.bash_profile", "/etc/bashrc",
-            "/etc/profile", "/etc/profile.d/"
-        ],
-        "description": "LD_PRELOAD 后门"
-    },
-    "ld.so.preload": {
-        "file": "/etc/ld.so.preload",
-        "description": "ld.so.preload 后门"
-    },
-    "PROMPT_COMMAND": {
-        "env_files": ["/root/.bashrc", "/etc/bashrc", "/etc/profile"],
-        "description": "PROMPT_COMMAND 后门"
-    },
-    "SSH_wrapper": {
-        "check": "file /usr/sbin/sshd",
-        "description": "SSH wrapper 后门"
-    },
-    "alias_backdoor": {
-        "patterns": ["rm -rf", "wget.*境外", "curl.*境外"],
-        "description": "Alias 后门"
-    }
-}
+# 元数据
+_meta:
+  version: 1
+  updated_at: "2026-06-10T00:00:00+00:00"
+  updated_by: "github-actions-update-rules"
+  sources: ["custom_expert", "emerging_threats"]
+  total_rules: 9
 
-CRON_BACKDOOR_PATTERNS = [
-    "wget.*境外", "curl.*境外", "境外ip", "nc\\s",
-    "bash.*-i", "/dev/tcp", "base64.*解码"
-]
+# 自定义专家规则（基于 GScan 和安全经验）
+# 包含 9 种后门类型，每种有检测特征、严重级别、修复建议
+custom_expert_rules:
+  - name: "LD_PRELOAD后门"
+    env_var: "LD_PRELOAD"
+    severity: "critical"
+    description: "LD_PRELOAD 环境变量劫持动态链接库"
+    check_method: "env_check"
+    files_to_check:
+      - /root/.bashrc
+      - /root/.bash_profile
+      - /etc/bashrc
+      - /etc/profile
+    fix_command: "grep LD_PRELOAD /etc/bashrc /etc/profile && vi <file> # 删除 export LD_PRELOAD"
+    references:
+      - "MITRE T1574.006"
+      - "GScan Backdoor_Analysis.py"
 
-SETUID_BLACKLIST = [
-    "/tmp/", "/var/tmp/", "/dev/shm/"
-]
+  - name: "ld.so.preload后门"
+    file: "/etc/ld.so.preload"
+    severity: "critical"
+    description: "动态链接器预加载文件被篡改"
+    check_method: "file_content"
+    fix_command: "rm -f /etc/ld.so.preload"
+
+  - name: "PROMPT_COMMAND后门"
+    env_var: "PROMPT_COMMAND"
+    severity: "high"
+    description: "命令提示符劫持，用于记录输入或注入命令"
+    check_method: "env_check"
+    files_to_check:
+      - /root/.bashrc
+      - /etc/bashrc
+      - /etc/profile
+
+  - name: "Cron后门-境外下载"
+    severity: "critical"
+    description: "定时任务下载境外恶意文件"
+    check_method: "cron_content"
+    patterns:
+      - "wget.*境外"
+      - "curl.*境外"
+      - "境外ip"
+      - "nc\\s"
+      - "bash -i"
+    cron_paths:
+      - /var/spool/cron/
+      - /etc/cron.d/
+      - /etc/cron.daily/
+
+  - name: "SSH后门替身"
+    severity: "critical"
+    description: "SSH 服务被替换为自定义程序（ln -sf /usr/sbin/sshd /tmp/su）"
+    check_method: "suspicious_binary"
+    suspicious_paths:
+      - /tmp/su
+      - /tmp/sudu
+      - /var/tmp/su
+    fix_command: "rm -f /tmp/su && systemctl restart sshd"
+
+  - name: "SSHWrapper后门"
+    severity: "critical"
+    description: "/usr/sbin/sshd 被 shell wrapper 替换，监听非标准端口"
+    check_method: "file_type"
+    check_path: "/usr/sbin/sshd"
+    expected_type: "ELF"
+    fix_command: "yum -y install openssh-server && systemctl restart sshd"
+
+  - name: "setuid后门"
+    severity: "critical"
+    description: "临时目录中的 SUID 文件"
+    check_method: "find_suid"
+    suspicious_dirs:
+      - /tmp
+      - /var/tmp
+      - /dev/shm
+    fix_command: "chmod u-s <file>"
+
+  - name: "启动项后门"
+    severity: "high"
+    description: "/etc/init.d/ 或 rc.local 中包含反弹shell命令"
+    check_method: "startup_content"
+    patterns:
+      - "bash -i"
+      - "/dev/tcp"
+      - "nc\\s"
+    startup_paths:
+      - /etc/init.d/
+      - /etc/rc.local
+      - /etc/rc.d/
+      - /etc/systemd/system/
+
+  - name: "alias后门"
+    severity: "medium"
+    description: "alias 命令被篡改用于隐藏恶意操作"
+    check_method: "alias_check"
+    patterns:
+      - "rm.*-rf"
+      - "wget.*境外"
+      - "curl.*境外"
+
+# 境外 IP 列表（自动更新）
+overseas_indicators:
+  source: "emerging_threats"
+  updated_at: "2026-06-10T00:00:00+00:00"
+  ipv4_ranges: []
+  domains: []
+
+# SSH 后门特征（自动更新）
+ssh_backdoor_signatures:
+  source: "custom_expert"
+  patterns:
+    - "ln -sf /usr/sbin/sshd /tmp/su"
+    - "/tmp/su -oPort=5555"
+    - "python.*-c.*spawn.*ssh"

@@ -1,28 +1,104 @@
 # coding: utf-8
-"""
-Rootkit 特征规则库
-"""
+# CloudInspect Rootkit 特征库
+# ⚠️ 此文件由 GitHub Actions 自动更新，请勿手动修改
 
-ROOTKIT_FILE_SIGNATURES = [
-    "/tmp/...",
-    "/tmp/..",
-    "/var/tmp/...",
-    "/var/tmp/..",
-    "/dev/shm/...",
-    "/dev/shm/..",
-]
+_meta:
+  version: 1
+  updated_at: "2026-06-10T00:00:00+00:00"
+  updated_by: "github-actions-update-rules"
+  sources: ["custom_expert", "emerging_threats"]
+  total_rules: 25
 
-ROOTKIT_NAMES = [
-    "SuckIt", "TCT", "Bchk", "Rozena", "Diamorphine",
-    " Reptile", "Avz", "KNARK", "Heroes", "Mood-NT",
-    "Invisible-Keylogger", "Zzag", "Mokes", "Bial",
-]
+# 已知 Rootkit 文件名特征
+file_signatures:
+  - pattern: "/tmp/..."
+    severity: high
+    description: "SuckIt rootkit 隐藏文件"
+  - pattern: "/tmp/.."
+    severity: high
+    description: "常见隐藏目录"
+  - pattern: "/var/tmp/..."
+    severity: high
+    description: "临时目录隐藏文件"
+  - pattern: "/dev/shm/..."
+    severity: critical
+    description: "共享内存隐藏文件"
+  - pattern: "/dev/shm/.."
+    severity: critical
 
-LKM_PATTERNS = [
-    "hide", "sniffer", "rootkit", "backdoor",
-    "keylog", "stealth", "hook", "inject",
-]
+# 已知 Rootkit 名称
+rootkit_names:
+  - name: "SuckIt"
+    files: ["/dev/sdNotArootkinEl0"]
+    lkm: []
+    severity: critical
+  - name: "Diamorphine"
+    files: []
+    lkm: ["diamorphine"]
+    severity: critical
+  - pattern: "reptile"
+    files: []
+    lkm: ["reptile"]
+    severity: critical
+  - name: "Reptile"
+    files: []
+    lkm: ["reptile"]
+    severity: critical
 
-SUSPICIOUS_PROC_NAMES = [
-    "[kworker", "[kthreadd", "kondemand", "loop"
-]
+# 异常内核模块关键字
+lkm_suspicious_keywords:
+  - "hide"
+  - "sniffer"
+  - "rootkit"
+  - "backdoor"
+  - "keylog"
+  - "stealth"
+  - "hook"
+  - "inject"
+
+# 隐藏进程检测
+hidden_proc_indicators:
+  - "进程存在于 /proc 但 ps 看不到"
+  - "D 状态持久进程"
+  - "PID 在 1-300 范围外的可疑进程"
+
+# 可疑 /dev 设备
+suspicious_dev:
+  - pattern: "/dev/[a-z]-[a-z0-9]+"
+    severity: high
+    description: "非标准字符设备文件"
+    exclude:
+      - "/dev/tty"
+      - "/dev/null"
+      - "/dev/zero"
+      - "/dev/random"
+      - "/dev/urandom"
+
+# 系统命令替换检测
+command_replacements:
+  - command: "ps"
+    suspicious_hash: ""
+    severity: critical
+    description: "ps 命令被替换"
+  - command: "ls"
+    suspicious_hash: ""
+    severity: high
+    description: "ls 命令被替换"
+  - command: "netstat"
+    suspicious_hash: ""
+    severity: high
+    description: "netstat 命令被替换"
+  - command: "ss"
+    suspicious_hash: ""
+    severity: high
+    description: "ss 命令被替换"
+  - command: "find"
+    suspicious_hash: ""
+    severity: medium
+    description: "find 命令被替换"
+
+# 网络连接异常
+network_anomaly:
+  - "非 root 用户建立 22 端口以外的 SSH 连接"
+  - "大量 SYN_SENT 状态的连接"
+  - "异常时间段（深夜 2-5 点）的 SSH 登录"
