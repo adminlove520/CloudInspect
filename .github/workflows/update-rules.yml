@@ -4,14 +4,19 @@ on:
   schedule:
     # 每周六凌晨 2:00 UTC 自动更新规则
     - cron: '0 2 * * 6'
-  # 手动触发（可传入规则源参数）
   workflow_dispatch:
     inputs:
-      rule_source:
-        description: '规则源 (alienvault|abuseipdb|emerging|all)'
+      source:
+        description: '规则源'
         required: false
         default: 'all'
-  # 也可以通过 API 触发
+        type: choice
+        options:
+          - all
+          - custom
+          - emerging
+          - otx
+          - abuseipdb
   repository_dispatch:
     types: [update-rules]
 
@@ -25,33 +30,37 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install pyyaml requests
+        run: pip install pyyaml requests
 
       - name: Run rule update script
         id: update
+        env:
+          OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
+          ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
         run: |
-          python .github/scripts/update_rules.py --source "${{ inputs.rule_source || 'all' }}"
+          echo "=== CloudInspect 规则自动更新 ==="
+          echo "触发源: ${{ github.event_name }}"
+          python .github/scripts/update_rules.py --source "${{ inputs.source || 'all' }}"
 
       - name: Check for changes
         id: git_status
         run: |
           if git diff --quiet; then
             echo "changes=false" >> $GITHUB_OUTPUT
-            echo "No rule updates available."
+            echo "无规则更新，跳过 PR。"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
-            echo "Rule files updated."
+            echo "=== 变更摘要 ==="
             git diff --stat
+            echo "=== 变更详情 ==="
+            git diff python/rules/ | head -80
           fi
 
       - name: Create Pull Request
@@ -59,16 +68,14 @@ jobs:
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'chore(rules): auto-update detection rules
-            - Updated: $(date +%Y-%m-%d)
-            - Source: ${{ inputs.rule_source || 'all' }}'
+          commit-message: "chore(rules): auto-update detection rules $(date +%Y-%m-%d)"
           branch: feature/auto-update-rules-$(date +%Y%m%d)
           delete-branch: true
-          title: '🤖 自动规则更新 $(date +%Y-%m-%d)'
+          title: "🤖 自动规则更新 $(date +%Y-%m-%d)"
           body: |
             ## CloudInspect 规则自动更新
 
-            本 PR 由 GitHub Actions 自动创建，来源: `${{ inputs.rule_source || 'all' }}`
+            **触发时间**: $(date '+%Y-%m-%d %H:%M UTC')
 
             ### 更新内容
 
@@ -77,32 +84,38 @@ jobs:
             - Rootkit 特征库 (rootkit_signatures.yaml)
             - Webshell 检测模式 (webshell_patterns.yaml)
 
-            ### 更新来源
+            ### 规则来源
 
-            | 来源 | 说明 |
+            | 来源 | 状态 |
             |---|---|
-            | AlienVault OTX | 社区威胁情报 |
-            | Emerging Threats | ET Open 规则 |
-            | MITRE ATT&CK | 攻击模式映射 |
-            | 自定义规则 | 项目维护的扩展规则 |
+            | 自定义专家规则 | ✅ 已启用 |
+            | Emerging Threats (ET Open) | ✅ 已启用 |
+            | AlienVault OTX | ✅ 已启用 |
+            | AbuseIPDB | ✅ 已启用 |
 
-            ### 操作建议
+            ### 人工审查清单
 
             - [ ] 审查规则变更内容
-            - [ ] 如有新规则来源可加入
             - [ ] 确认无误后合并
+            - [ ] 可选：发布 Release 版本
 
             ---
-            *此 PR 由 CloudInspect 自动化规则更新系统生成*
+            *由 CloudInspect GitHub Actions 自动生成*
           labels: |
             automated
             rules-update
             security
 
-      - name: Publish Release (if significant update)
+      - name: Sync to releases branch
         if: steps.git_status.outputs.changes == 'true'
         run: |
-          # 如果有重大更新（规则数量增加 >10%），创建 release tag
-          echo "Rule update completed at $(date)"
-          git log --oneline -1 > /tmp/commit.txt
-          echo "Commit: $(cat /tmp/commit.txt)"
+          echo "规则更新完成，将在 PR 合并后同步到 releases 分支"
+
+      - name: Summary
+        if: steps.git_status.outputs.changes == 'true'
+        run: |
+          echo "✅ 规则已更新，PR 已创建，请前往 Review 合并"
+          echo "📋 https://github.com/${{ github.repository }}/pulls"
+        if: steps.git_status.outputs.changes == 'false'
+        run: |
+          echo "✅ 无新规则，当前规则已是最新"
