@@ -1,150 +1,205 @@
 # coding: utf-8
-# CloudInspect Webshell 检测规则
-# ⚠️ 此文件由 GitHub Actions 自动更新，请勿手动修改
+# CloudInspect Detection Rules
+# Auto-updated: 2026-06-10 10:57 UTC
+# ⚠️ 此文件由 GitHub Actions 自动更新
 
 _meta:
-  version: 1
-  updated_at: "2026-06-10T00:00:00+00:00"
-  updated_by: "github-actions-update-rules"
-  sources: ["custom_expert", "emerging_threats"]
-  total_rules: 15
-
-# Webshell 检测模式（正则）
+  version: 2
+  updated_at: '2026-06-10T10:57:42.959577+00:00'
+  updated_by: github-actions-update-rules
+  total_rules: 26
+  sources:
+  - custom
+  - et
+  - otx
+  - abuse
 detection_patterns:
-  - pattern: "eval\\s*\\("
-    severity: high
-    description: "动态代码执行函数"
-    languages: [php, python, ruby]
-    examples:
-      - "eval($_POST[x])"
-      - "eval(base64_decode($cmd))"
-
-  - pattern: "base64_decode\\s*\\("
-    severity: high
-    description: "Base64 解码函数"
-    languages: [php]
-    examples:
-      - "base64_decode($data)"
-      - "base64_decode($_GET['c'])"
-
-  - pattern: "system\\s*\\(|passthru\\s*\\(|exec\\s*\\("
-    severity: high
-    description: "系统命令执行函数"
-    languages: [php, python, perl]
-    examples:
-      - "system($_GET['cmd'])"
-      - "exec('ls')"
-
-  - pattern: "shell_exec\\s*\\(|popen\\s*\\(|proc_open\\s*\\("
-    severity: high
-    description: "Shell 命令执行"
-    languages: [php]
-    examples:
-      - "shell_exec($cmd)"
-      - "popen($cmd, 'r')"
-
-  - pattern: "preg_replace.*\\/e"
-    severity: critical
-    description: "PCRE /e 修饰符代码执行"
-    languages: [php]
-    references:
-      - "CVE-2015-4025"
-      - "CVE-2015-2328"
-
-  - pattern: "assert\\s*\\("
-    severity: high
-    description: "断言执行（PHP7+）"
-    languages: [php]
-    examples:
-      - "assert($_POST['x'])"
-
-  - pattern: "call_user_func\\s*\\(|create_function\\s*\\("
-    severity: medium
-    description: "回调函数执行"
-    languages: [php]
-
-  - pattern: "usort\\s*\\("
-    severity: medium
-    description: "动态函数排序执行"
-
-  - pattern: "ini_set.*disable_functions"
-    severity: critical
-    description: "尝试禁用安全函数"
-
-  - pattern: "\\\\x[0-9a-f]{2,}"
-    severity: high
-    description: "Hex 编码混淆"
-    languages: [php, python]
-
-  - pattern: "chr\\s*\\(\\d+\\)\\.chr"
-    severity: high
-    description: "字符串拼接混淆"
-
-  - pattern: "gxz\\.php|404\\.php|config\\.php"
-    severity: medium
-    description: "可疑文件名"
-    languages: [php]
-
-  - pattern: "ob_start\\s*\\(|obfuscate"
-    severity: medium
-    description: "输出缓冲混淆"
-
-  - pattern: "\\$\\$|\\$\\{"
-    severity: medium
-    description: "可变变量/变量变量"
-
-# 可疑文件名模式
+- pattern: eval\s*\(
+  severity: high
+  description: 动态代码执行函数
+  languages:
+  - php
+  - python
+  - ruby
+  examples:
+  - eval($_POST[x])
+  - eval(base64_decode($cmd))
+- pattern: base64_decode\s*\(
+  severity: high
+  description: Base64 解码函数
+  languages:
+  - php
+  examples:
+  - base64_decode($data)
+  - base64_decode($_GET['c'])
+- pattern: system\s*\(|passthru\s*\(|exec\s*\(
+  severity: high
+  description: 系统命令执行函数
+  languages:
+  - php
+  - python
+  - perl
+  examples:
+  - system($_GET['cmd'])
+  - exec('ls')
+- pattern: shell_exec\s*\(|popen\s*\(|proc_open\s*\(
+  severity: high
+  description: Shell 命令执行
+  languages:
+  - php
+  examples:
+  - shell_exec($cmd)
+  - popen($cmd, 'r')
+- pattern: preg_replace.*\/e
+  severity: critical
+  description: PCRE /e 修饰符代码执行
+  languages:
+  - php
+  references:
+  - CVE-2015-4025
+  - CVE-2015-2328
+- pattern: assert\s*\(
+  severity: high
+  description: 断言执行（PHP7+）
+  languages:
+  - php
+  examples:
+  - assert($_POST['x'])
+- pattern: call_user_func\s*\(|create_function\s*\(
+  severity: medium
+  description: 回调函数执行
+  languages:
+  - php
+- pattern: usort\s*\(
+  severity: medium
+  description: 动态函数排序执行
+- pattern: ini_set.*disable_functions
+  severity: critical
+  description: 尝试禁用安全函数
+- pattern: \\x[0-9a-f]{2,}
+  severity: high
+  description: Hex 编码混淆
+  languages:
+  - php
+  - python
+- pattern: chr\s*\(\d+\)\.chr
+  severity: high
+  description: 字符串拼接混淆
+- pattern: gxz\.php|404\.php|config\.php
+  severity: medium
+  description: 可疑文件名
+  languages:
+  - php
+- pattern: ob_start\s*\(|obfuscate
+  severity: medium
+  description: 输出缓冲混淆
+- pattern: \$\$|\$\{
+  severity: medium
+  description: 可变变量/变量变量
 suspicious_filenames:
-  - "404.php"
-  - "test.php"
-  - "info.php"
-  - "shell.php"
-  - "hack.php"
-  - "cmd.php"
-  - "webshell.php"
-  - "eval.php"
-  - "x.php"
-  - "1.php"
-  - "2.php"
-  - "a.php"
-  - "up.php"
-  - "upload.php"
-  - "login.php"
-  - "config.php"
-  - "data.php"
-  - "cache.php"
-
-# 扫描目录
+- 404.php
+- test.php
+- info.php
+- shell.php
+- hack.php
+- cmd.php
+- webshell.php
+- eval.php
+- x.php
+- 1.php
+- 2.php
+- a.php
+- up.php
+- upload.php
+- login.php
+- config.php
+- data.php
+- cache.php
 scan_paths:
-  - /var/www
-  - /home
-  - /opt
-  - /srv
-  - /data
-
-# 文件大小限制（大于此不扫描）
-max_file_size_bytes: 2097152  # 2MB
-
-# 扫描扩展名
+- /var/www
+- /home
+- /opt
+- /srv
+- /data
+max_file_size_bytes: 2097152
 target_extensions:
-  - .php
-  - .jsp
-  - .jspx
-  - .asp
-  - .aspx
-  - .php3
-  - .php4
-  - .php5
-  - .phtml
-  - .py
-  - .pl
-  - .cgi
-  - .htm
-  - .html
-
-# 排除目录
+- .php
+- .jsp
+- .jspx
+- .asp
+- .aspx
+- .php3
+- .php4
+- .php5
+- .phtml
+- .py
+- .pl
+- .cgi
+- .htm
+- .html
 exclude_paths:
-  - /var/www/html/vendor
-  - /var/www/html/node_modules
-  - /home/*/venv
-  - /home/*/.local/lib
+- /var/www/html/vendor
+- /var/www/html/node_modules
+- /home/*/venv
+- /home/*/.local/lib
+expert_patterns:
+- pattern: eval\s*\(
+  severity: high
+  desc: 动态代码执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: base64_decode\s*\(
+  severity: high
+  desc: Base64 混淆
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: system\s*\(|passthru\s*\(|exec\s*\(
+  severity: high
+  desc: 系统命令执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: shell_exec\s*\(|popen\s*\(|proc_open\s*\(
+  severity: high
+  desc: Shell命令执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: preg_replace.*\/e
+  severity: critical
+  desc: PCRE代码执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: assert\s*\(
+  severity: high
+  desc: 断言执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: call_user_func\s*\(|create_function\s*\(
+  severity: medium
+  desc: 回调函数执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: usort\s*\(
+  severity: medium
+  desc: 动态函数执行
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: ini_set.*disable_functions
+  severity: critical
+  desc: 禁用安全函数
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: \\\\x[0-9a-f]{2,}
+  severity: high
+  desc: Hex编码混淆
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: gxz\.php|404\.php|config\.php
+  severity: medium
+  desc: 可疑文件名
+  _source: custom_expert
+  _added_at: '2026-06-10'
+- pattern: ob_start\s*\(
+  severity: medium
+  desc: 输出缓冲混淆
+  _source: custom_expert
+  _added_at: '2026-06-10'
