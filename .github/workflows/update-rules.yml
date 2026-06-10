@@ -112,10 +112,10 @@ jobs:
           echo "规则更新完成，将在 PR 合并后同步到 releases 分支"
 
       - name: Summary
-        if: steps.git_status.outputs.changes == 'true'
         run: |
-          echo "✅ 规则已更新，PR 已创建，请前往 Review 合并"
-          echo "📋 https://github.com/${{ github.repository }}/pulls"
-        if: steps.git_status.outputs.changes == 'false'
-        run: |
-          echo "✅ 无新规则，当前规则已是最新"
+          if [ "${{ steps.git_status.outputs.changes }}" == "true" ]; then
+            echo "✅ 规则已更新，PR 已创建，请前往 Review 合并"
+            echo "📋 https://github.com/${{ github.repository }}/pulls"
+          else
+            echo "✅ 无新规则，当前规则已是最新"
+          fi
