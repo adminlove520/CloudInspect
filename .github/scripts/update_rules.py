@@ -202,7 +202,8 @@ def fetch_emerging_threats() -> list:
                             "source": src_name,
                             "confidence": 70
                         })
-                print(f"[ET] 从 {src_name} 获取到 {len([l for l in lines if re.match(r'\d+\.\d+\.\d+\.\d+', l.strip())]} 条 IP")
+                ip_count = len([l for l in lines if re.match(r'\d+\.\d+\.\d+\.\d+', l.strip())])
+                print(f"[ET] 从 {src_name} 获取到 {ip_count} 条 IP")
         except Exception as e:
             print(f"[WARN] Emerging Threats {url} 失败: {e}")
 
