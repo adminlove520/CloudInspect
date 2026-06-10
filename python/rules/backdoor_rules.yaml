@@ -1,13 +1,13 @@
 # coding: utf-8
 # CloudInspect Detection Rules
-# Auto-updated: 2026-06-10 10:57 UTC
+# Auto-updated: 2026-06-10 11:12 UTC
 # ⚠️ 此文件由 GitHub Actions 自动更新
 
 _meta:
-  version: 2
-  updated_at: '2026-06-10T10:57:42.342007+00:00'
+  version: 3
+  updated_at: '2026-06-10T11:12:58.395765+00:00'
   updated_by: github-actions-update-rules
-  total_rules: 751
+  total_rules: 787
   sources:
   - custom
   - et
@@ -4609,4 +4609,327 @@ external_indicators:
   country: ''
   source: abuseipdb
   _source: abuseipdb
+  _added_at: '2026-06-10'
+- indicator: velvet-parrot.com
+  type: domain
+  pulse: 'Poisoning the well: AI supply chain attacks on Hugging Face and OpenClaw'
+  pulse_id: 6a01c2363e7f67fcbed473cb
+  created: '2026-05-11T11:49:10.065000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: valid.boostedengagement.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: log.evergreenhostingoptions.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: login.av7551.com
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: login.kgbpkh6syhgxptsgwkqc93ushhphua422xb7ma.2bd.net
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: admhr.execsuccessmetrics.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: vvu.digitaladvantagehub.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: gsbauwu1hsa.legalaro.com
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: accounts.tnfirm.icu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: accounts.gxcwfe.icu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: accounts.knuczx.icu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: accounts.zachnt.icu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: accounts.odtdrv.icu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: pmlee.com
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: sparkaxis.org
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: wylderhotels.sparkaxis.org
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: ewo7pdwau5.memorablemark.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: yxmh7yx50d.easytecdigital.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: vht0p9fsyg.balanceandperformance.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: ks39dmitgq.scalableenterprise.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: roty0ray48.scalableenterprise.de
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: alert.nortirock.co.uk
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: greotipu.com.es
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: dennyslistens.autos
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: dyjpaw1vb1.star-lakeq.com
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: tiltectfqhnologies.vu
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: sqlbatimcorporation.vu
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: solutionntechtheepiscopalcenterforit.snnfhawmedia.vu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: globalagencerevenucanadasolutions.aquimisasnmll.vu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: safemanagementatforiawdfield.vu
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: cloudbradshawautomotivesystems.finelinesettpmxingsinc.vu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: cloudadventurecredituniongroup.globahonlcarg.vu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: rijitechsolutionjtcs.vu
+  type: domain
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: servicedptechnologypteltdsolutions.sudmanagementhztgroupe.vu
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: solutionmarsincorporatedtowersperrin.credaroii.cfd
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
+  _added_at: '2026-06-10'
+- indicator: www.realdecorralejo.com
+  type: hostname
+  pulse: 'PHISH ALERT: Press Play for Compromise — Voicemail Phishing Kit Bundles
+    SSO Hijacking, Credential Theft, and RMM Delivery'
+  pulse_id: 6a2943210c24d6920786a101
+  created: '2026-06-10T10:57:37.463000'
+  source: alienvault_otx
+  _source: alienvault_otx
   _added_at: '2026-06-10'
