@@ -69,7 +69,8 @@ class SysinfoModule:
 
         # 系统运行时间
         boot_time = psutil.boot_time()
-        uptime_hours = round((psutil.time.time() - boot_time) / 3600, 1)
+        import time as time_module
+        uptime_hours = round((time_module.time() - boot_time) / 3600, 1)
 
         # Windows 专用信息
         windows_info = self.get_windows_info()

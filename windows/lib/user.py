@@ -32,7 +32,10 @@ class UserModule:
             })
 
         # 检查 Guest 用户状态
-        guest_disabled = any(u['name'].lower() == 'guest' and not u['enabled'] for u in users)
+        guest_disabled = any(
+            u.get('name', '').lower() == 'guest' and not u.get('enabled', True) == False
+            for u in users if isinstance(u, dict)
+        )
         if not guest_disabled:
             issues.append({
                 "level": "warning",
