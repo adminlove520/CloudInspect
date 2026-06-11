@@ -17,9 +17,32 @@
 | **12 大检测模块** | 系统信息 / 磁盘 / 网络 / 进程 / 服务 / 定时任务 / 安全基线 / 后门检测 / Rootkit / 日志分析 / 历史命令 / Webshell |
 | **4 种工作模式** | routine（日常）/ emergency（应急）/ quick（快速）/ full（完全） |
 | **双语言版本** | Bash（零依赖）/ Python（功能完整） |
-| **3 种报告格式** | HTML（美观卡片式）/ DOCX（正式交付）/ Markdown（存档） |
-| **跨平台支持** | Rocky / RHEL / CentOS / Ubuntu / Debian / Kylin / SUSE / Arch / Alpine / Gentoo |
+| **4 种报告格式** | HTML（美观卡片式）/ DOCX（正式交付）/ Markdown（存档）/ JSON（程序处理） |
+| **跨平台支持** | RHEL 家族 (含 HCE/EulerOS) / Debian 家族 / SUSE / Kylin / UOS / Arch / Alpine / Gentoo |
 | **离线安装** | download_packages.sh → install.sh，零联网依赖 |
+| **自动规则更新** | GitHub Actions 每周自动更新检测规则 |
+
+---
+
+## 支持的操作系统
+
+### 信创平台 ✅
+
+| 操作系统 | 架构 | 状态 |
+|---|---|---|
+| **华为云 EulerOS (HCE)** | x86_64, aarch64 | ✅ 完全支持 |
+| **EulerOS** | x86_64, aarch64 | ✅ 完全支持 |
+| **麒麟 Kylin V10** | x86_64, aarch64 | ✅ 完全支持 |
+| **统信 UOS** | x86_64, aarch64 | ✅ 完全支持 |
+
+### 主流 Linux ✅
+
+| 家族 | 操作系统 |
+|---|---|
+| **RHEL** | Rocky / AlmaLinux / CentOS / RHEL / Fedora / Amazon Linux / Oracle / Anolis |
+| **Debian** | Debian / Ubuntu / Kali / Mint |
+| **SUSE** | SLES / openSUSE |
+| **其他** | Arch / Alpine / Gentoo |
 
 ---
 
@@ -28,17 +51,18 @@
 ### Bash 版本（零依赖）
 
 ```bash
+git clone https://github.com/adminlove520/CloudInspect.git
 cd CloudInspect/bash
 chmod +x inspect.sh
 ./inspect.sh                    # 默认 HTML 报告
 ./inspect.sh -m emergency       # 应急排查模式
 ./inspect.sh -f json -o /tmp/r.json  # 输出 JSON
-./inspect.sh --mode quick --verbose  # 快速详细
 ```
 
 ### Python 版本（功能完整）
 
 ```bash
+git clone https://github.com/adminlove520/CloudInspect.git
 cd CloudInspect/python
 pip install -r requirements.txt  # 或: pip install pyyaml psutil python-docx lxml
 python inspect.py -m emergency -f html   # 应急排查 + HTML
@@ -90,36 +114,20 @@ python inspect.py -f docx -o /tmp/report.docx  # Word 报告
 
 ---
 
-## 报告示例
+## 文档
 
-HTML 报告采用**分层卡片式**设计：
-- 顶部仪表盘（风险等级/关键指标）
-- 左侧导航目录
-- 内容区按检测类别卡片展示
-- 每类带统计徽章 + 可展开详情
+完整文档见 [docs/](docs/) 目录：
 
----
-
-## 离线安装
-
-### Step 1：联网主机下载
-
-```bash
-cd CloudInspect/scripts
-chmod +x download_packages.sh
-./download_packages.sh
-# 生成 packages/ 目录（包含 Bash4/Python3/pip wheel）
-```
-
-### Step 2：拷贝到内网 + 安装
-
-```bash
-# 将 packages/ 目录拷贝到内网服务器
-cd CloudInspect/scripts
-chmod +x install.sh
-./install.sh
-# 全自动安装 Bash4 + Python3 + 依赖
-```
+| 文档 | 说明 |
+|---|---|
+| [快速开始](docs/getting-started.md) | 5分钟上手指南 |
+| [OS 支持说明](docs/os-support.md) | 支持的 OS 完整列表（含 HCE/EulerOS） |
+| [命令行参数](docs/command-line.md) | 所有参数详解 |
+| [配置说明](docs/configuration.md) | config/default.yaml 详解 |
+| [离线安装](docs/offline-install.md) | 内网环境安装指南 |
+| [报告解读](docs/report-guide.md) | 如何阅读巡检报告 |
+| [故障排查](docs/troubleshooting.md) | 常见问题与解决方案 |
+| [模块文档](docs/modules/) | 12 个检测模块详细说明 |
 
 ---
 
@@ -129,7 +137,7 @@ chmod +x install.sh
 CloudInspect/
 ├── bash/
 │   ├── inspect.sh           # 主入口（Bash版）
-│   └── lib/                  # 12个检测模块
+│   └── lib/                # 12个检测模块
 │       ├── core.sh          # 核心：OS检测/工具函数
 │       ├── 01_sysinfo.sh    # 系统信息
 │       ├── 02_disk.sh       # 磁盘
@@ -147,13 +155,13 @@ CloudInspect/
 │
 ├── python/
 │   ├── inspect.py           # 主入口（Python版）
-│   ├── lib/                  # 12个检测模块（与Bash同源）
-│   ├── core/                # 核心引擎
-│   │   ├── config.py         # 配置管理
-│   │   ├── detector.py       # 检测调度
-│   │   ├── reporter.py       # 多格式报告
-│   │   └── os_detect.py      # OS检测层
-│   ├── rules/               # 特征规则库
+│   ├── lib/                # 12个检测模块（与Bash同源）
+│   ├── core/               # 核心引擎
+│   │   ├── config.py        # 配置管理
+│   │   ├── detector.py      # 检测调度
+│   │   ├── reporter.py      # 多格式报告
+│   │   └── os_detect.py     # OS检测层
+│   ├── rules/              # 特征规则库
 │   │   ├── backdoor_rules.yaml
 │   │   ├── rootkit_signatures.yaml
 │   │   └── webshell_patterns.yaml
@@ -162,14 +170,38 @@ CloudInspect/
 ├── config/
 │   └── default.yaml         # 默认配置（Bash/Python共读）
 │
-├── packages/                 # 离线安装包
-│   ├── bash/                 # 预编译 Bash 4
-│   ├── python3/              # 预编译 Python 3
-│   └── pip/                  # wheel 包
+├── packages/                # 离线安装包
+│   ├── bash/                # 预编译 Bash 4
+│   ├── python3/             # 预编译 Python 3
+│   └── pip/                 # wheel 包
 │
 ├── scripts/
-│   ├── download_packages.sh  # 联网下载离线包
-│   └── install.sh           # 内网一键安装
+│   ├── download_packages.sh # 联网下载离线包
+│   └── install.sh          # 内网一键安装
+│
+├── docs/                    # 完整文档
+│   ├── README.md           # 文档索引
+│   ├── getting-started.md   # 快速开始
+│   ├── os-support.md        # OS 支持说明
+│   ├── command-line.md      # 命令行参数
+│   ├── configuration.md     # 配置说明
+│   ├── offline-install.md   # 离线安装
+│   ├── report-guide.md      # 报告解读
+│   ├── troubleshooting.md   # 故障排查
+│   ├── rule-update.md       # 规则更新
+│   └── modules/             # 模块文档
+│       ├── 01-sysinfo.md
+│       ├── 02-disk.md
+│       ├── 03-network.md
+│       ├── 04-process.md
+│       ├── 05-service.md
+│       ├── 06-cron.md
+│       ├── 07-security.md
+│       ├── 08-backdoor.md
+│       ├── 09-rootkit.md
+│       ├── 10-log-analysis.md
+│       ├── 11-history.md
+│       └── 12-webshell.md
 │
 └── README.md
 ```
@@ -190,28 +222,6 @@ CloudInspect/
 
 CloudInspect 通过 GitHub Actions 定时自动更新检测规则，确保能检测到最新的入侵手法。
 
-### 工作原理
-
-```
-GitHub Actions (每周六 02:00 UTC)
-       ↓
-   update_rules.py
-       ↓
-   ┌──────────────┐
-   │  规则源       │
-   │  - 自定义专家规则  │
-   │  - Emerging Threats  │
-   │  - AlienVault OTX (可选) │
-   │  - AbuseIPDB (可选)   │
-   └──────────────┘
-       ↓
-   规则合并 + 版本管理
-       ↓
-   创建 Pull Request
-       ↓
-   人工审查后合并
-```
-
 ### 触发方式
 
 | 方式 | 说明 |
@@ -223,34 +233,10 @@ GitHub Actions (每周六 02:00 UTC)
 
 ### 设置 API Key（可选）
 
-如需使用 AlienVault OTX / AbuseIPDB，需在 GitHub Secrets 中配置：
-
 | Secret 名称 | 用途 |
 |---|---|
 | `OTX_API_KEY` | AlienVault OTX API Key |
 | `ABUSEIPDB_API_KEY` | AbuseIPDB API Key |
-
-### 规则文件
-
-| 文件 | 说明 |
-|---|---|
-| `python/rules/backdoor_rules.yaml` | 后门检测规则 |
-| `python/rules/rootkit_signatures.yaml` | Rootkit 特征库 |
-| `python/rules/webshell_patterns.yaml` | Webshell 检测模式 |
-
-每个规则文件包含：
-- `_meta` — 版本号/更新时间/规则总数
-- `custom_expert_rules` — 基于 GScan 和安全专家经验的规则
-- 自动同步的外部规则
-
-### 规则来源
-
-| 来源 | 内容 | 需要 API Key |
-|---|---|---|
-| 自定义专家规则 | 9 种后门检测逻辑 | 否 |
-| Emerging Threats | 恶意 IP + Suricata 规则 | 否 |
-| AlienVault OTX | 威胁情报脉冲 | 是 |
-| AbuseIPDB | 高置信度恶意 IP | 是 |
 
 ---
 
