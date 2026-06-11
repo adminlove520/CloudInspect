@@ -54,19 +54,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def print_banner(mode, os_info):
-    windows_banner = f"""
-===================================================================
-  CloudInspect {__version__} - 云主机安全巡检工具 (Windows)
-  Host: {os_info.get('hostname', '未知')}
-  OS: {os_info.get('os', '未知')}
-  Mode: {mode}
-  Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-===================================================================
-    """
-    print(windows_banner)
-
-
 def main():
     args = parse_args()
 
@@ -84,13 +71,19 @@ def main():
         print("请确保所有依赖已安装: pip install -r requirements.txt")
         sys.exit(1)
 
+    # 打印初始横幅
+    if not args.quiet:
+        print(f"""
+===================================================================
+  CloudInspect {__version__} - 云主机安全巡检工具 (Windows)
+  Host: {platform.node()}
+  Mode: {args.mode}
+  Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+===================================================================
+    """)
+
     # 初始化配置
     config = Config(SCRIPT_DIR, args)
-
-    # 打印横幅
-    if not args.quiet:
-        os_info = config.get("sysinfo", {})
-        print_banner(args.mode, os_info)
 
     # 初始化检测器
     detector = Detector(config)
@@ -103,6 +96,11 @@ def main():
     results = detector.run()
     elapsed = time.time() - start_time
 
+    # 从检测结果中获取 sysinfo
+    sysinfo_data = results.get('modules', {}).get('sysinfo', {})
+    hostname = sysinfo_data.get('hostname', platform.node())
+    os_name = sysinfo_data.get('os', platform.platform())
+
     # 生成报告
     reporter = Reporter(config, results)
     output_path = reporter.generate(args.format)
@@ -112,8 +110,8 @@ def main():
         print(f"""
 ===================================================================
   CloudInspect {__version__} - 巡检完成
-  Host: {platform.node()}
-  Mode: {args.mode}
+  Host: {hostname}
+  OS: {os_name}
   Warnings: {results.get('warnings', 0)}
   Critical: {results.get('critical', 0)}
   Elapsed: {elapsed:.1f}s
