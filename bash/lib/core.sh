@@ -2,6 +2,7 @@
 ###############################################################################
 # CloudInspect - Bash 版本核心库
 # 功能：OS检测 / 工具函数 / 颜色定义 / 配置加载 / 报告框架
+# 支持: Rocky / RHEL / CentOS / Ubuntu / Debian / Kylin / EulerOS / UOS / SUSE / Arch / Alpine / Gentoo 等主流操作系统
 ###############################################################################
 
 set -euo pipefail
@@ -104,6 +105,7 @@ detect_os() {
 
     # 兜底检测
     [[ -z "$id" && -f /etc/kylin-release ]] && { id="kylin"; pretty=$(head -1 /etc/kylin-release 2>/dev/null); }
+    [[ -z "$id" && -f /etc/euler-release ]] && { id="euler"; pretty=$(head -1 /etc/euler-release 2>/dev/null); }
     [[ -z "$id" && -f /etc/centos-release ]] && { id="centos"; pretty=$(head -1 /etc/centos-release 2>/dev/null); }
     [[ -z "$id" && -f /etc/redhat-release ]] && { id="rhel"; pretty=$(head -1 /etc/redhat-release 2>/dev/null); }
     [[ -z "$id" && -f /etc/SuSE-release ]] && { id="suse"; pretty=$(head -1 /etc/SuSE-release 2>/dev/null); }
@@ -116,6 +118,7 @@ detect_os() {
     case "$id $id_like" in
         *kylin*|*neokylin*)    OS_FAMILY="kylin" ;;
         *uos*|*deepin*)        OS_FAMILY="uos" ;;
+        *euler*|*Euler*)       OS_FAMILY="rhel" ;;  # EulerOS 基于 RHEL，归入 rhel 家族
         *rhel*|*centos*|*rocky*|*almalinux*|*ol*|*oracle*|*fedora*|*amzn*|*amazon*|*anolis*|*tencentos*|*alinux*)  OS_FAMILY="rhel" ;;
         *debian*|*ubuntu*|*kali*|*mint*|*pop*|*raspbian*)  OS_FAMILY="debian" ;;
         *suse*|*sles*|*opensuse*)  OS_FAMILY="suse" ;;

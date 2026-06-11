@@ -1,6 +1,7 @@
 # coding: utf-8
 """
 OS 检测层
+支持: Rocky / RHEL / CentOS / Ubuntu / Debian / Kylin / EulerOS / UOS / SUSE / Arch / Alpine / Gentoo 等主流操作系统
 """
 
 import os
@@ -34,6 +35,10 @@ class OSDetect:
                 self.id = "kylin"
                 with open("/etc/kylin-release") as f:
                     self.pretty = f.readline().strip()
+            elif os.path.exists("/etc/euler-release"):
+                self.id = "euler"  # EulerOS
+                with open("/etc/euler-release") as f:
+                    self.pretty = f.readline().strip()
             elif os.path.exists("/etc/centos-release"):
                 self.id = "centos"
                 with open("/etc/centos-release") as f:
@@ -49,12 +54,14 @@ class OSDetect:
         self.major = self.version.split(".")[0] if self.version else ""
 
         # 判断家族
-        rhel_ids = ["rhel", "centos", "rocky", "almalinux", "ol", "fedora", "amazon"]
+        rhel_ids = ["rhel", "centos", "rocky", "almalinux", "ol", "fedora", "amazon", "euler"]
         debian_ids = ["debian", "ubuntu", "kali", "mint"]
         suse_ids = ["suse", "sles", "opensuse"]
 
         if self.id in ["kylin", "neokylin"]:
             self.family = "kylin"
+        elif self.id in ["euler"]:
+            self.family = "rhel"  # EulerOS 基于 RHEL，归入 rhel 家族
         elif self.id in rhel_ids:
             self.family = "rhel"
         elif self.id in debian_ids:

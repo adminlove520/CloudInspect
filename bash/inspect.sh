@@ -1,9 +1,9 @@
 #!/bin/bash
 ###############################################################################
 # CloudInspect - 云主机安全巡检工具
-# 版本: v1.0
+# 版本: v1.1
 # 功能: 系统巡检 + 入侵检测 + 应急排查
-# 适用: Rocky / RHEL / CentOS / Ubuntu / Debian / Kylin / SUSE / Arch / Alpine / Gentoo
+# 支持: Rocky / RHEL / CentOS / EulerOS / Ubuntu / Debian / Kylin / UOS / SUSE / Arch / Alpine / Gentoo 等主流操作系统
 ###############################################################################
 
 set -euo pipefail
