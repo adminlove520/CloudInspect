@@ -38,12 +38,10 @@ jobs:
         run: pip install pyyaml requests
 
       - name: Run rule update script
-        id: update
         env:
           OTX_API_KEY: ${{ secrets.OTX_API_KEY }}
-          ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
+          ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIpdb_API_KEY }}
         run: |
-          echo "=== CloudInspect 规则更新 ==="
           python .github/scripts/update_rules.py --source "${{ inputs.source || 'all' }}"
 
       - name: Check for changes
@@ -54,7 +52,7 @@ jobs:
             echo "无规则更新，跳过后续步骤"
           else
             echo "changes=true" >> $GITHUB_OUTPUT
-            echo "=== 变更 ==="
+            echo "变更:"
             git diff --stat python/rules/
           fi
 
@@ -70,7 +68,7 @@ jobs:
           body: |
             ## CloudInspect 规则自动更新
 
-            规则已从外部威胁情报源同步更新，包含后门检测规则、Rootkit 特征库和 Webshell 检测模式。
+            规则已从外部威胁情报源同步更新。
           labels: |
             automated
             rules-update
@@ -78,18 +76,18 @@ jobs:
 
       - name: Auto-merge Pull Request
         if: steps.git_status.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "等待 PR 创建..."
           sleep 15
           PR_NUMBER=$(gh pr list \
             --repo ${{ github.repository }} \
             --state open \
             --label automated \
             --json number \
-            --jq '.[0].number' 2>/dev/null)
-          echo "PR 编号: $PR_NUMBER"
+            --jq '.[0].number')
           if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-            gh pr merge $PR_NUMBER \
+            gh pr merge "$PR_NUMBER" \
               --repo ${{ github.repository }} \
               --squash \
               --delete-branch
@@ -97,48 +95,35 @@ jobs:
           else
             echo "未找到 open PR，跳过合并"
           fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         if: steps.git_status.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           TAG="rules-$(date +%Y%m%d)"
-          echo "Release tag: $TAG"
+          echo "创建 Release tag: $TAG"
+          cat > /tmp/release-notes.md << 'NOTES'
+          ## CloudInspect 规则自动更新
 
-          # 生成 release notes 文件
-          echo "## CloudInspect 规则自动更新" > /tmp/release-notes.md
-          echo "" >> /tmp/release-notes.md
-          echo "规则版本: $(date +%Y-%m-%d)" >> /tmp/release-notes.md
-          echo "" >> /tmp/release-notes.md
-          echo "### 来源" >> /tmp/release-notes.md
-          echo "- Emerging Threats: 恶意 IP 列表" >> /tmp/release-notes.md
-          echo "- AlienVault OTX: 威胁情报脉冲" >> /tmp/release-notes.md
-          echo "- AbuseIPDB: 高置信度 IP" >> /tmp/release-notes.md
-          echo "" >> /tmp/release-notes.md
-          echo "### 文件" >> /tmp/release-notes.md
-          echo "- backdoor_rules.yaml" >> /tmp/release-notes.md
-          echo "- rootkit_signatures.yaml" >> /tmp/release-notes.md
-          echo "- webshell_patterns.yaml" >> /tmp/release-notes.md
-          echo "" >> /tmp/release-notes.md
-          echo "由 CloudInspect GitHub Actions 自动生成" >> /tmp/release-notes.md
-
+          来源: Emerging Threats + AlienVault OTX + AbuseIPDB + 专家规则
+          文件: backdoor_rules.yaml / rootkit_signatures.yaml / webshell_patterns.yaml
+          由 CloudInspect GitHub Actions 自动生成
+          NOTES
           gh release create "$TAG" \
             --repo ${{ github.repository }} \
-            --title "Auto Update Rules $(date +%Y-%m-%d)" \
+            --title "Auto Rules Update $(date +%Y-%m-%d)" \
             --notes-file /tmp/release-notes.md
-          echo "Release $TAG 已创建"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          echo "Release $TAG 创建完成"
 
       - name: Summary
         run: |
           if [ "${{ steps.git_status.outputs.changes }}" == "true" ]; then
-            TAG="rules-$(date +%Y%m%d)"
-            echo "✅ 规则更新完成"
-            echo "✅ PR 已合并到 main"
-            echo "✅ Release $TAG 已发布"
+            echo "## ✅ 完成"
+            echo "- 规则已更新"
+            echo "- PR 已合并"
+            echo "- Release 已发布"
             echo "📦 https://github.com/${{ github.repository }}/releases"
           else
-            echo "✅ 规则已是最新，无更新"
+            echo "✅ 规则已是最新"
           fi
