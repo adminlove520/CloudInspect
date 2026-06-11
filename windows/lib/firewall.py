@@ -15,11 +15,11 @@ class FirewallModule:
 
         # 检查是否有防火墙关闭
         for profile in firewall_profiles:
-            if not profile['enabled']:
+            if not profile.get('enabled', False):
                 issues.append({
                     "level": "warning",
                     "module": "firewall",
-                    "desc": f"防火墙 {profile['name']} 未启用"
+                    "desc": f"防火墙 {profile.get('display_name', profile.get('Name', 'Unknown'))} 未启用"
                 })
 
         # 获取防火墙规则
@@ -62,14 +62,15 @@ class FirewallModule:
                 else:
                     profiles = [data]
 
-                # 转换名称
+                # 转换名称，确保所有字段都有默认值
                 for p in profiles:
-                    p['display_name'] = profile_names.get(p['Name'], p['Name'])
+                    p['display_name'] = profile_names.get(p.get('Name', ''), p.get('Name', ''))
+                    p['enabled'] = p.get('Enabled', False)  # 确保有 enabled 字段
 
         except Exception:
             pass
 
-        return profiles
+        return profiles if profiles else []
 
     def get_firewall_rules(self):
         """获取防火墙规则"""

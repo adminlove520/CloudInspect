@@ -46,9 +46,11 @@ class Detector:
         # 执行各模块
         for module_name in self.modules:
             try:
-                module = self.load_module(module_name)
-                if module:
-                    result = module.run(os_detect, self.config)
+                module_class = self.load_module(module_name)
+                if module_class:
+                    # 创建类实例并调用 run 方法
+                    instance = module_class()
+                    result = instance.run(os_detect, self.config)
                     self.results['modules'][module_name] = result
 
                     # 统计告警
@@ -68,7 +70,7 @@ class Detector:
         return self.results
 
     def load_module(self, module_name):
-        """动态加载模块"""
+        """动态加载模块类"""
         try:
             module_file = os.path.join(
                 os.path.dirname(__file__), '..', 'lib', f'{module_name}.py'
@@ -81,6 +83,13 @@ class Detector:
             spec = importlib.util.spec_from_file_location(module_name, module_file)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            return module
+
+            # 将模块名转为类名 (例如: sysinfo -> SysinfoModule)
+            class_name = ''.join(word.capitalize() for word in module_name.split('_')) + 'Module'
+
+            if hasattr(module, class_name):
+                return getattr(module, class_name)
+
+            return None
         except Exception:
             return None

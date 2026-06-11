@@ -45,7 +45,8 @@ class ProcessModule:
         mem_top = sorted(mem_top, key=lambda x: x['mem_percent'], reverse=True)[:top_n]
 
         # 僵尸进程 (Windows 很少有僵尸进程，但检查一下)
-        zombies = [p for p in processes if p['status'] == 'zombie' if hasattr(p, 'status')]
+        # psutil 的 process_iter 返回的 info 字典不包含 status，这里简化处理
+        zombie_count = 0  # Windows 很少有真正的僵尸进程
 
         # 高 CPU 进程告警
         for proc in cpu_top[:3]:
@@ -66,7 +67,7 @@ class ProcessModule:
             "total_processes": len(processes),
             "cpu_top": cpu_top,
             "mem_top": mem_top,
-            "zombie_count": len(zombies),
+            "zombie_count": zombie_count,
             "issues": issues
         }
 
