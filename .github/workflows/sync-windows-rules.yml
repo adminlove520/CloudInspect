@@ -1,0 +1,108 @@
+name: Sync Windows Detection Rules
+
+on:
+  schedule:
+    # 每周六 03:00 UTC，比 update-rules 晚 1 小时
+    - cron: '0 3 * * 6'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (不写入文件)'
+        required: false
+        default: 'false'
+        type: boolean
+  repository_dispatch:
+    types: [sync-windows-rules]
+
+jobs:
+  sync-rules:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout windows-support branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/windows-support
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Sync Windows rules
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ inputs.dry_run }}" == "true" ]; then
+            python windows/scripts/sync_rules.py --dry-run
+          else
+            python windows/scripts/sync_rules.py
+          fi
+
+      - name: Check for changes
+        id: git_status
+        run: |
+          if git diff --quiet windows/rules/; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "无规则更新，跳过"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "变更:"
+            git diff --stat windows/rules/
+          fi
+
+      - name: Create Pull Request
+        if: steps.git_status.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(windows): auto-sync detection rules from python/rules"
+          branch: feature/windows-support
+          delete-branch: false
+          title: "🤖 自动同步 Windows 检测规则"
+          body: |
+            ## CloudInspect Windows 规则自动同步
+
+            规则已从 python/rules/ 同步更新到 windows/rules/。
+          labels: |
+            automated
+            windows
+            rules-update
+
+      - name: Auto-merge Pull Request
+        if: steps.git_status.outputs.changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 15
+          PR_NUMBER=$(gh pr list \
+            --repo ${{ github.repository }} \
+            --state open \
+            --head feature/windows-support \
+            --json number \
+            --jq '.[0].number')
+          if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+            gh pr merge "$PR_NUMBER" \
+              --repo ${{ github.repository }} \
+              --squash \
+              --delete-branch
+            echo "PR #$PR_NUMBER 已合并"
+          else
+            echo "未找到 open PR，跳过合并"
+          fi
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.git_status.outputs.changes }}" == "true" ]; then
+            echo "## ✅ Windows 规则同步完成"
+            echo "- 规则已同步到 windows/rules/"
+            echo "- PR 已合并到 feature/windows-support"
+          else
+            echo "✅ 规则已是最新"
+          fi
