@@ -1,0 +1,28 @@
+# CloudInspect Windows 默认配置
+# Python/Bash 共用
+
+thresholds:
+  cpu_warn: 80        # CPU 警告阈值 (%)
+  cpu_crit: 90        # CPU 严重阈值 (%)
+  mem_warn: 85        # 内存警告阈值 (%)
+  mem_crit: 95        # 内存严重阈值 (%)
+  disk_warn: 85       # 磁盘警告阈值 (%)
+  disk_crit: 95       # 磁盘严重阈值 (%)
+  conn_close_wait: 50 # CLOSE_WAIT 连接数警告
+
+scan:
+  top_n: 10           # TOP N 显示数量
+  log_lines: 20        # 日志显示行数
+  large_file_size: "100M"  # 大文件阈值
+  recent_days: 7      # 近期文件天数
+
+output:
+  report_dir: "C:\\Temp\\cloudinspect"  # 报告输出目录
+  json_indent: 2                   # JSON 缩进
+
+windows:
+  check_defender: true            # 检查 Windows Defender
+  check_firewall: true             # 检查防火墙
+  check_eventlog_days: 7          # 事件日志天数
+  check_users: true               # 检查用户
+  check_updates: true            # 检查更新

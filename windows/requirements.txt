@@ -1,0 +1,12 @@
+# CloudInspect - Windows Python 依赖列表
+
+# 核心依赖
+pyyaml>=6.0
+psutil>=5.9.0
+
+# 报告生成
+lxml>=4.9.0
+
+# Windows 专用
+pywin32>=306  # Windows API 调用
+wmi>=1.5.1   # Windows Management Instrumentation
