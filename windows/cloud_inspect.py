@@ -2,7 +2,7 @@
 """
 CloudInspect for Windows
 云主机安全巡检工具 - Windows Server 版
-版本: v1.0
+版本: v2.0
 """
 
 import sys
@@ -14,7 +14,7 @@ import time
 import platform
 from datetime import datetime
 
-__version__ = "v1.0"
+__version__ = "v2.0"
 __author__ = "CloudInspect"
 __os_version__ = "Windows"
 
@@ -31,10 +31,10 @@ def parse_args():
   full       完全扫描（60分钟+）
 
 示例:
-  python inspect.py                         # 默认 HTML 报告
-  python inspect.py -m emergency -f html    # 应急排查模式
-  python inspect.py -f json -o C:\\Temp\\r.json  # 输出 JSON
-  python inspect.py --mode quick --verbose  # 快速详细模式
+  python cloud_inspect.py                         # 默认 HTML 报告
+  python cloud_inspect.py -m emergency -f html    # 应急排查模式
+  python cloud_inspect.py -f json -o C:\\Temp\\r.json  # 输出 JSON
+  python cloud_inspect.py --mode quick --verbose  # 快速详细模式
 
 支持的操作系统:
   Windows Server 2012 / 2016 / 2019 / 2022
