@@ -1,0 +1,46 @@
+# CloudInspect Windows Rootkit 检测规则
+
+_meta:
+  version: 1
+  os: windows
+  generated_by: sync_rules.py
+  total_rules: 5
+
+windows_rules:
+  - id: "WIN_RK_HIDDEN_PROCESS"
+    name: "隐藏进程检测"
+    check_type: "process_compare"
+    severity: "critical"
+    description: "对比 Task Manager 和 WMIC 进程数，差异过大可能存在 Rootkit"
+
+  - id: "WIN_RK_UNSIGNED_DRIVER"
+    name: "未签名驱动"
+    check_type: "driver_signature"
+    severity: "high"
+    description: "加载的驱动缺少数字签名"
+
+  - id: "WIN_RK_SUSPICIOUS_DEVICES"
+    name: "可疑设备"
+    check_type: "device_list"
+    patterns: ["\\Device\\\\", "\\\\.\\"]
+    severity: "high"
+    description: "非标准设备名称"
+
+  - id: "WIN_RK_MODIFIED_SYSFILES"
+    name: "系统文件被修改"
+    check_type: "file_hash"
+    files:
+      - "C:\\Windows\\System32\\cmd.exe"
+      - "C:\\Windows\\System32\\net.exe"
+      - "C:\\Windows\\System32\\attrib.exe"
+    severity: "critical"
+    description: "关键系统文件哈希值与已知值不符"
+
+  - id: "WIN_RK_DISABLED_DEFENDER"
+    name: "Defender 被禁用"
+    check_type: "registry_key"
+    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender"
+    key: "DisableAntiSpyware"
+    expected_value: "1"
+    severity: "critical"
+    description: "Windows Defender 被通过注册表禁用"

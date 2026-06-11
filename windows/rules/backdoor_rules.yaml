@@ -1,0 +1,67 @@
+# CloudInspect Windows 后门检测规则
+# 由 windows/scripts/sync_rules.py 自动生成
+
+_meta:
+  version: 1
+  os: windows
+  generated_by: sync_rules.py
+  total_rules: 8
+
+windows_rules:
+  - id: "WIN_REG_RUN_001"
+    name: "注册表 Run 键可疑项"
+    check_type: "registry_key"
+    path: "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+    severity: "warning"
+    description: "检查注册表 Run 键中的可疑自启动项"
+
+  - id: "WIN_REG_RUN_USER"
+    name: "用户级 Run 键可疑项"
+    check_type: "registry_key"
+    path: "HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"
+    severity: "warning"
+    description: "检查用户级 Run 键"
+
+  - id: "WIN_GUEST_ENABLED"
+    name: "Guest 账户启用"
+    check_type: "account"
+    account: "Guest"
+    severity: "warning"
+    description: "Guest 账户被启用，可能用于后门"
+
+  - id: "WIN_RDP_ENABLED"
+    name: "RDP 远程桌面启用"
+    check_type: "registry_key"
+    path: "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server"
+    key: "fDeny"
+    expected_value: "0"
+    severity: "info"
+    description: "远程桌面服务已启用"
+
+  - id: "WIN_ADMIN_USERS"
+    name: "本地管理员数量过多"
+    check_type: "admin_count"
+    threshold: 3
+    severity: "warning"
+    description: "本地管理员数量超过阈值"
+
+  - id: "WIN_SUSPICIOUS_SCHEDULED_TASK"
+    name: "可疑计划任务"
+    check_type: "scheduled_task"
+    patterns: ["powershell.*-enc", "mshta", "wscript", "cscript.*shell"]
+    severity: "high"
+    description: "计划任务中包含可疑命令"
+
+  - id: "WIN_SVC_MALICIOUS"
+    name: "可疑服务名称"
+    check_type: "service_name"
+    suspicious_names: ["WindowsUpdate", "SecurityCenter", "WwanSvc"]
+    severity: "high"
+    description: "服务名称与系统服务相似，可能是伪装后门"
+
+  - id: "WIN_NET_LISTENING_UNCOMMON"
+    name: "非标准端口监听"
+    check_type: "network_port"
+    suspicious_ports: [4444, 5555, 6666, 7777, 8888, 31337, 12345]
+    severity: "high"
+    description: "检测常见后门监听端口"
