@@ -1,10 +1,10 @@
 # CloudInspect Windows Webshell 检测规则
 
 _meta:
-  version: 1
+  version: 2
   os: windows
   generated_by: sync_rules.py
-  total_rules: 6
+  total_rules: 5
 
 windows_rules:
   - id: "WIN_WS_EVAL_BASE64"
@@ -38,14 +38,6 @@ windows_rules:
     extensions: [".asp", ".aspx"]
     severity: "high"
     description: "检测 ASP/ASPX 中的命令执行"
-
-  - id: "WIN_WS_SUSPICIOUS_UPLOAD"
-    name: "可疑上传路径"
-    check_type: "file_location"
-    suspicious_dirs: ["upload", "uploads", "editor", "images", "temp", "cache"]
-    extensions: [".php", ".asp", ".aspx", ".jsp", ".exe", ".dll"]
-    severity: "high"
-    description: "在上传目录中发现可执行文件"
 
   - id: "WIN_WS_IIS_CMD"
     name: "IIS 命令执行组件"
