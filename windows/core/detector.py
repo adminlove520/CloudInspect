@@ -31,10 +31,11 @@ class Detector:
             'routine': ['sysinfo', 'disk', 'network', 'process', 'service',
                        'eventlog', 'firewall', 'user', 'update'],
             'emergency': ['sysinfo', 'disk', 'network', 'process', 'service',
-                          'eventlog', 'firewall', 'user', 'update', 'registry', 'privilege'],
+                          'eventlog', 'firewall', 'user', 'update', 'registry', 'privilege',
+                          'backdoor', 'history', 'rootkit', 'webshell'],
             'full': ['sysinfo', 'disk', 'network', 'process', 'service',
                     'eventlog', 'firewall', 'user', 'update', 'registry',
-                    'privilege', 'defender']
+                    'privilege', 'defender', 'backdoor', 'history', 'rootkit', 'webshell']
         }
 
         self.modules = module_map.get(mode, module_map['routine'])
