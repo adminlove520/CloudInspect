@@ -1,11 +1,11 @@
 # coding: utf-8
 # CloudInspect Detection Rules
-# Auto-updated: 2026-06-10 11:12 UTC
+# Auto-updated: 2026-06-13 06:11 UTC
 # ⚠️ 此文件由 GitHub Actions 自动更新
 
 _meta:
-  version: 3
-  updated_at: '2026-06-10T11:12:59.257120+00:00'
+  version: 4
+  updated_at: '2026-06-13T06:11:07.157331+00:00'
   updated_by: github-actions-update-rules
   total_rules: 26
   sources:
